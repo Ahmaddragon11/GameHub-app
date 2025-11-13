@@ -53,7 +53,7 @@ class AppTheme {
         ),
       );
 
-  static final CardTheme _cardTheme = CardTheme(
+  static final CardThemeData _cardTheme = CardThemeData(
     elevation: 12,
     shadowColor: _primaryColor.withAlpha(128),
     shape: RoundedRectangleBorder(
