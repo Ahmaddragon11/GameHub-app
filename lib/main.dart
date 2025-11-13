@@ -82,18 +82,18 @@ class HomeScreen extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          children: const [
-            GameCard(
+          children: [
+            const GameCard(
               title: 'Pong',
               image: 'assets/images/pong.png',
               route: '/pong',
             ),
-            GameCard(
+            const GameCard(
               title: 'Memory Card Game',
               image: 'assets/images/memory_card.png',
               route: '/memory-card',
             ),
-            GameCard(
+            const GameCard(
               title: 'Snake',
               image: 'assets/images/snake.png',
               route: '/snake',
