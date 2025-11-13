@@ -1,7 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HighScoreManager {
-
   Future<int> getHighScore(String gameId) async {
     final prefs = await SharedPreferences.getInstance();
     final key = 'high_score_$gameId';

@@ -54,7 +54,9 @@ class _FlappyBirdGameScreenState extends State<FlappyBirdGameScreen> {
       time = 0;
       score = 0;
       pipeX[0] = MediaQuery.of(context).size.width;
-      pipeX[1] = MediaQuery.of(context).size.width + MediaQuery.of(context).size.width / 2;
+      pipeX[1] =
+          MediaQuery.of(context).size.width +
+          MediaQuery.of(context).size.width / 2;
       pipeHeight[0] = 150;
       pipeHeight[1] = 200;
       isPlaying = true;
@@ -92,7 +94,8 @@ class _FlappyBirdGameScreenState extends State<FlappyBirdGameScreen> {
       for (int i = 0; i < pipeX.length; i++) {
         if (pipeX[i] < birdSize &&
             pipeX[i] + pipeWidth > 0 &&
-            (birdY < pipeHeight[i] || birdY + birdSize > pipeHeight[i] + pipeGap)) {
+            (birdY < pipeHeight[i] ||
+                birdY + birdSize > pipeHeight[i] + pipeGap)) {
           gameOver();
         }
       }
@@ -148,9 +151,7 @@ class _FlappyBirdGameScreenState extends State<FlappyBirdGameScreen> {
         child: Stack(
           children: [
             // Background
-            Container(
-              color: Colors.lightBlueAccent,
-            ),
+            Container(color: Colors.lightBlueAccent),
 
             // Pipes
             for (int i = 0; i < pipeX.length; i++) ...[
@@ -168,7 +169,10 @@ class _FlappyBirdGameScreenState extends State<FlappyBirdGameScreen> {
                 bottom: 0,
                 child: Container(
                   width: pipeWidth,
-                  height: MediaQuery.of(context).size.height - pipeHeight[i] - pipeGap,
+                  height:
+                      MediaQuery.of(context).size.height -
+                      pipeHeight[i] -
+                      pipeGap,
                   color: Colors.green,
                 ),
               ),
@@ -177,7 +181,10 @@ class _FlappyBirdGameScreenState extends State<FlappyBirdGameScreen> {
             // Bird
             AnimatedContainer(
               duration: const Duration(milliseconds: 0),
-              alignment: Alignment(0, birdY / (MediaQuery.of(context).size.height / 2)),
+              alignment: Alignment(
+                0,
+                birdY / (MediaQuery.of(context).size.height / 2),
+              ),
               child: Container(
                 width: birdSize,
                 height: birdSize,

@@ -185,7 +185,10 @@ class _SnakeGameScreenState extends State<SnakeGameScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 'Score: $score | High Score: $highScore',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -240,9 +243,4 @@ class _SnakeGameScreenState extends State<SnakeGameScreen> {
   }
 }
 
-enum Direction {
-  up,
-  down,
-  left,
-  right,
-}
+enum Direction { up, down, left, right }

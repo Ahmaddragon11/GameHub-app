@@ -116,7 +116,10 @@ class _TicTacToeGameScreenState extends State<TicTacToeGameScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 'X Wins: $xWins | O Wins: $oWins',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -130,8 +133,8 @@ class _TicTacToeGameScreenState extends State<TicTacToeGameScreen> {
               winner == null
                   ? 'Player $currentPlayer\'s Turn'
                   : winner == 'draw'
-                      ? 'It\'s a Draw!'
-                      : 'Player $winner Wins!',
+                  ? 'It\'s a Draw!'
+                  : 'Player $winner Wins!',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
@@ -151,7 +154,10 @@ class _TicTacToeGameScreenState extends State<TicTacToeGameScreen> {
                     child: Center(
                       child: Text(
                         board[index],
-                        style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

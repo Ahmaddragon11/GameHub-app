@@ -9,7 +9,8 @@ class PongGameScreen extends StatefulWidget {
   State<PongGameScreen> createState() => _PongGameScreenState();
 }
 
-class _PongGameScreenState extends State<PongGameScreen> with TickerProviderStateMixin {
+class _PongGameScreenState extends State<PongGameScreen>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   double _ballX = 0;
   double _ballY = 0;
@@ -46,8 +47,14 @@ class _PongGameScreenState extends State<PongGameScreen> with TickerProviderStat
       }
 
       // Ball collision with paddles
-      if ((_ballX > 0.9 && _ballX < 0.95 && _ballY > _player2Y - 0.2 && _ballY < _player2Y + 0.2) ||
-          (_ballX < -0.9 && _ballX > -0.95 && _ballY > _player1Y - 0.2 && _ballY < _player1Y + 0.2)) {
+      if ((_ballX > 0.9 &&
+              _ballX < 0.95 &&
+              _ballY > _player2Y - 0.2 &&
+              _ballY < _player2Y + 0.2) ||
+          (_ballX < -0.9 &&
+              _ballX > -0.95 &&
+              _ballY > _player1Y - 0.2 &&
+              _ballY < _player1Y + 0.2)) {
         _ballDirectionX *= -1;
         _playSound('paddle_hit.wav');
       }
