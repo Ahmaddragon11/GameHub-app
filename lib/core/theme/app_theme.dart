@@ -25,7 +25,7 @@ class AppTheme {
         primary: primaryColor,
         secondary: accentColor,
         error: errorColor,
-        background: lightBackgroundColor,
+        surface: lightBackgroundColor,
       ),
       appBarTheme: const AppBarTheme(
         elevation: 1,
@@ -53,7 +53,7 @@ class AppTheme {
         primary: primaryColor,
         secondary: accentColor,
         error: errorColor,
-        background: darkBackgroundColor,
+        surface: darkBackgroundColor,
       ),
       appBarTheme: AppBarTheme(
         elevation: 1,

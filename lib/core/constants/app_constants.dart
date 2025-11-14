@@ -5,7 +5,13 @@ abstract class AppConstants {
 
   // Database
   static const String databaseName = 'classic_games.db';
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 3;
+
+  // Auth Constants
+  static const int minPasswordLength = 6;
+  static const String emailRegex = r'^[^@]+@[^@]+\.[^@]+';
+  static const int usernameMinLength = 3;
+  static const int usernameMaxLength = 20;
 
   // Firebase Firestore Collections
   static const String firestoreUsersCollection = 'users';

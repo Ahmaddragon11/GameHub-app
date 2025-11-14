@@ -3,8 +3,13 @@ import 'package:get/get.dart';
 import 'app_routes.dart';
 import '../../features/home/views/home_view.dart';
 import '../../features/home/bindings/home_binding.dart';
-import '../../features/games/snake/views/snake_view.dart';
+import '../../features/auth/bindings/auth_binding.dart';
+import '../../features/auth/views/login_view.dart';
+import '../../features/auth/views/register_view.dart';
 import '../../features/games/snake/bindings/snake_binding.dart';
+import '../../features/games/snake/views/snake_view.dart';
+import '../../features/profile/bindings/profile_binding.dart';
+import '../../features/profile/views/profile_view.dart';
 
 abstract class AppPages {
   static final routes = [
@@ -25,7 +30,21 @@ abstract class AppPages {
     ),
     GetPage(name: AppRoutes.flappyBird, page: () => const PlaceholderGameScreen(gameName: 'Flappy Bird')),
     GetPage(name: AppRoutes.ticTacToe, page: () => const PlaceholderGameScreen(gameName: 'Tic Tac Toe')),
-    GetPage(name: AppRoutes.profile, page: () => const PlaceholderScreen(title: 'الملف الشخصي')),
+    GetPage(
+      name: AppRoutes.profile,
+      page: () => const ProfileView(),
+      binding: ProfileBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.login,
+      page: () => const LoginView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.register,
+      page: () => const RegisterView(),
+      binding: AuthBinding(),
+    ),
     GetPage(name: AppRoutes.settings, page: () => const PlaceholderScreen(title: 'الإعدادات')),
     GetPage(name: AppRoutes.leaderboard, page: () => const PlaceholderScreen(title: 'قائمة الصدارة')),
     GetPage(name: AppRoutes.chat, page: () => const PlaceholderScreen(title: 'الدردشة')),

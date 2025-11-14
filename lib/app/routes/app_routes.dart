@@ -10,4 +10,6 @@ abstract class AppRoutes {
   static const leaderboard = '/leaderboard';
   static const chat = '/chat';
   static const auth = '/auth';
+  static const login = '/auth/login';
+  static const register = '/auth/register';
 }

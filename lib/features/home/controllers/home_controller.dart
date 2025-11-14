@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:myapp/core/services/auth_service.dart';
 import '../../../core/models/game_model.dart';
 import '../../../core/services/database_service.dart';
-import '../../../core/services/storage_service.dart';
 import '../../../core/utils/helpers.dart';
 import '../../../app/routes/app_routes.dart';
 import '../../../core/theme/app_theme.dart'; // Assuming AppTheme is created
@@ -10,19 +10,18 @@ import '../../../core/theme/app_theme.dart'; // Assuming AppTheme is created
 class HomeController extends GetxController {
   final isLoading = true.obs;
   final games = <GameModel>[].obs;
-  final currentUser = Rxn<String>();
+  final authService = Get.find<AuthService>();
 
   final DatabaseService _databaseService = Get.find<DatabaseService>();
-  final StorageService _storageService = Get.find<StorageService>();
 
   @override
   void onInit() {
     super.onInit();
     _loadInitialData();
+    checkAuthStatus();
   }
 
   Future<void> _loadInitialData() async {
-    await _loadUserData();
     await _loadGames();
   }
 
@@ -63,17 +62,8 @@ class HomeController extends GetxController {
       ];
 
       // Fetch high scores
-      final db = await _databaseService.database;
       for (var game in initialGames) {
-        final result = await db.query(
-          'game_scores',
-          columns: ['MAX(score) as max_score'],
-          where: 'game_name = ?',
-          whereArgs: [game.nameEn],
-        );
-        if (result.isNotEmpty && result.first['max_score'] != null) {
-          game.highScore = (result.first['max_score'] as int?) ?? 0;
-        }
+        game.highScore = await _databaseService.getHighScore(game.id);
       }
 
       games.assignAll(initialGames);
@@ -84,23 +74,18 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<void> _loadUserData() async {
-    try {
-      final isGuest = _storageService.read<bool>(StorageKeys.isGuest) ?? true;
-      if (isGuest) {
-        currentUser.value = 'ضيف';
-      } else {
-        final userId = _storageService.read<String>(StorageKeys.userId);
-        if (userId != null) {
-          // In a real app, you would fetch the user's name from the database
-          currentUser.value = 'المستخدم $userId'; // Placeholder
-        } else {
-          currentUser.value = 'ضيف';
-        }
-      }
-    } catch (e) {
-      currentUser.value = 'ضيف';
-      Helpers.showSnackbar('فشل تحميل بيانات المستخدم', isError: true);
+  void checkAuthStatus() {
+    if (authService.userModel.value?.isGuest ?? true) {
+      Get.snackbar(
+        'مرحباً بك!',
+        'أنت تلعب كضيف. سجل الآن لحفظ تقدمك!',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+        mainButton: TextButton(
+          onPressed: () => Get.toNamed(AppRoutes.login),
+          child: const Text('تسجيل', style: TextStyle(color: Colors.white)),
+        ),
+      );
     }
   }
 

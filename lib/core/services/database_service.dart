@@ -29,8 +29,10 @@ class DatabaseService extends GetxService {
     await db.execute('''
       CREATE TABLE users (
         id TEXT PRIMARY KEY,
-        username TEXT UNIQUE,
-        created_at TEXT NOT NULL
+        username TEXT,
+        email TEXT UNIQUE,
+        created_at TEXT NOT NULL,
+        last_login_at TEXT
       )
     ''');
 
@@ -78,20 +80,92 @@ class DatabaseService extends GetxService {
         )
       ''');
     }
+    if (oldVersion < 3) {
+      await db.execute('ALTER TABLE users ADD COLUMN email TEXT UNIQUE');
+      await db.execute('ALTER TABLE users ADD COLUMN last_login_at TEXT');
+    }
   }
   
   Future<String> getOrCreateUser() async {
     String? userId = await _storageService.getUserId();
     if (userId == null) {
-      userId = const Uuid().v4();
+      final uuid = const Uuid().v4();
+      userId = uuid;
       await _storageService.setUserId(userId);
-      await _db.insert('users', {
-        'id': userId,
-        'username': 'guest_$userId',
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      await createUser(userId, 'guest_${uuid.substring(0, 8)}');
     }
     return userId;
+  }
+
+  Future<void> createUser(String id, String username, {String? email}) async {
+    await _db.insert(
+      'users',
+      {
+        'id': id,
+        'username': username,
+        'email': email,
+        'created_at': DateTime.now().toIso8601String(),
+        'last_login_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<Map<String, dynamic>?> getUserById(String userId) async {
+    final result = await _db.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
+  Future<void> updateUser(String userId, Map<String, dynamic> data) async {
+    await _db.update(
+      'users',
+      data,
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<void> migrateUserData(String oldUserId, String newUserId) async {
+    await _db.transaction((txn) async {
+      // Update all foreign key references
+      await txn.update('game_scores', {'user_id': newUserId}, where: 'user_id = ?', whereArgs: [oldUserId]);
+      await txn.update('game_statistics', {'user_id': newUserId}, where: 'user_id = ?', whereArgs: [oldUserId]);
+      
+      // Update the primary key in the users table
+      // This is a bit tricky in SQLite. A common way is to create a new user and delete the old one.
+      final oldUserData = await txn.query('users', where: 'id = ?', whereArgs: [oldUserId]);
+      if(oldUserData.isNotEmpty) {
+        final userData = Map<String, dynamic>.from(oldUserData.first);
+        userData['id'] = newUserId;
+        
+        await txn.delete('users', where: 'id = ?', whereArgs: [oldUserId]);
+        await txn.insert('users', userData);
+      }
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getAllUserStatistics(String userId) async {
+    return await _db.query(
+      'game_statistics',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  Future<int> getTotalGamesPlayed(String userId) async {
+    final result = await _db.rawQuery('''
+      SELECT SUM(wins + losses + draws) as total
+      FROM game_statistics
+      WHERE user_id = ?
+    ''', [userId]);
+    return (result.first['total'] as int?) ?? 0;
   }
 
   Future<void> addScore(String gameName, int score) async {
@@ -105,7 +179,8 @@ class DatabaseService extends GetxService {
   }
 
   Future<int> getHighScore(String gameName) async {
-    final userId = await getOrCreateUser();
+    final userId = await _storageService.getUserId();
+    if (userId == null) return 0;
     final result = await _db.query(
       'game_scores',
       columns: ['MAX(score) as highScore'],
@@ -116,7 +191,8 @@ class DatabaseService extends GetxService {
   }
 
   Future<Map<String, int>> getGameStatistics(String gameName, String mode) async {
-    final userId = await getOrCreateUser();
+    final userId = await _storageService.getUserId();
+    if (userId == null) return {'wins': 0, 'losses': 0, 'draws': 0};
     final result = await _db.query(
       'game_statistics',
       where: 'user_id = ? AND game_name = ? AND mode = ?',
@@ -134,7 +210,8 @@ class DatabaseService extends GetxService {
   }
 
   Future<void> updateGameStatistics(String gameName, String mode, {int? wins, int? losses, int? draws}) async {
-    final userId = await getOrCreateUser();
+    final userId = await _storageService.getUserId();
+    if (userId == null) return;
     await _db.transaction((txn) async {
       final existing = await txn.query(
         'game_statistics',
@@ -169,7 +246,8 @@ class DatabaseService extends GetxService {
   }
 
   Future<void> incrementStatistic(String gameName, String mode, String statType) async {
-    final userId = await getOrCreateUser();
+    final userId = await _storageService.getUserId();
+    if (userId == null) return;
     await _db.rawInsert('''
       INSERT INTO game_statistics (user_id, game_name, mode, wins, losses, draws, last_updated)
       VALUES (?, ?, ?, 
