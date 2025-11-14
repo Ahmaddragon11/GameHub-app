@@ -1,70 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import './app_routes.dart';
+import 'app_routes.dart';
+import '../../features/home/views/home_view.dart';
+import '../../features/home/bindings/home_binding.dart';
 
-// --- Placeholders ---
-// These will be moved to their respective feature folders later.
-
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
-  @override
-  Widget build(BuildContext context) {
-    // A simple placeholder. In a real app, this would have a logo
-    // and navigate to the home screen after some delay or initialization.
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
+abstract class AppPages {
+  static final routes = [
+    GetPage(
+      name: AppRoutes.home,
+      page: () => const HomeView(),
+      binding: HomeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.initial,
+      page: () => const HomeView(), // Or a splash screen
+      binding: HomeBinding(),
+    ),
+    GetPage(name: AppRoutes.snake, page: () => const PlaceholderGameScreen(gameName: 'Snake')),
+    GetPage(name: AppRoutes.flappyBird, page: () => const PlaceholderGameScreen(gameName: 'Flappy Bird')),
+    GetPage(name: AppRoutes.ticTacToe, page: () => const PlaceholderGameScreen(gameName: 'Tic Tac Toe')),
+    GetPage(name: AppRoutes.profile, page: () => const PlaceholderScreen(title: 'الملف الشخصي')),
+    GetPage(name: AppRoutes.settings, page: () => const PlaceholderScreen(title: 'الإعدادات')),
+    GetPage(name: AppRoutes.leaderboard, page: () => const PlaceholderScreen(title: 'قائمة الصدارة')),
+    GetPage(name: AppRoutes.chat, page: () => const PlaceholderScreen(title: 'الدردشة')),
+  ];
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+// Placeholder for general screens
+class PlaceholderScreen extends StatelessWidget {
+  final String title;
+  const PlaceholderScreen({super.key, required this.title});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: const Center(
-        child: Text('Welcome to the Classic Games App!'),
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Text('قريباً: $title', style: const TextStyle(fontSize: 24)),
       ),
     );
   }
 }
 
-// Bindings will be moved to the `bindings` folder.
-class HomeBinding extends Bindings {
+// Placeholder for game screens
+class PlaceholderGameScreen extends StatelessWidget {
+  final String gameName;
+  const PlaceholderGameScreen({super.key, required this.gameName});
+
   @override
-  void dependencies() {
-    // Example: Get.lazyPut<HomeController>(() => HomeController());
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(gameName)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('اللعبة قيد التطوير: $gameName', style: const TextStyle(fontSize: 24)),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => Get.back(),
+              child: const Text('العودة'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
-}
-
-class SplashBinding extends Bindings {
-  @override
-  void dependencies() {
-    // Example: Get.lazyPut<SplashController>(() => SplashController());
-  }
-}
-
-// --- App Pages ---
-
-abstract class AppPages {
-  static final routes = <GetPage>[
-    GetPage(
-      name: AppRoutes.initial,
-      page: () => const SplashScreen(),
-      binding: SplashBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.splash,
-      page: () => const SplashScreen(),
-      binding: SplashBinding(),
-    ),
-    GetPage(
-      name: AppRoutes.home,
-      page: () => const HomeScreen(),
-      binding: HomeBinding(),
-    ),
-  ];
 }
