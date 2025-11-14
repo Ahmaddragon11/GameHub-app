@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/animation.dart'; // Import for AnimationController
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,7 +11,7 @@ import '../models/bird.dart';
 import '../models/game_state.dart';
 import '../models/pipe.dart';
 
-class FlappyBirdController extends GetxController {
+class FlappyBirdController extends GetxController with GetSingleTickerProviderStateMixin {
   // Game constants
   static const double gravity = 0.0012;
   static const double jumpVelocity = -0.018;
@@ -36,6 +37,10 @@ class FlappyBirdController extends GetxController {
   String? _userId;
   final Random _random = Random();
 
+  // Animation for bird wings
+  late AnimationController _wingAnimationController;
+  late Animation<double> wingAnimation;
+
   @override
   void onInit() {
     super.onInit();
@@ -43,6 +48,12 @@ class FlappyBirdController extends GetxController {
     _storageService = Get.find<StorageService>();
     _loadData();
     resetGame();
+
+    _wingAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150), // Fast flapping
+    );
+    wingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_wingAnimationController);
   }
 
   Future<void> _loadData() async {
@@ -61,6 +72,7 @@ class FlappyBirdController extends GetxController {
       gameState.value = GameState.playing;
       _gameTimer = Timer.periodic(const Duration(milliseconds: gameLoopDuration), _gameLoop);
       _pipeSpawnTimer = Timer.periodic(const Duration(milliseconds: pipeSpawnInterval), (timer) => _spawnPipe());
+      _wingAnimationController.repeat(reverse: true);
     }
   }
 
@@ -68,6 +80,7 @@ class FlappyBirdController extends GetxController {
     if (gameState.value.canPause) {
       _gameTimer?.cancel();
       _pipeSpawnTimer?.cancel();
+      _wingAnimationController.stop();
       gameState.value = GameState.paused;
     }
   }
@@ -140,6 +153,7 @@ class FlappyBirdController extends GetxController {
   void _gameOver() {
     _gameTimer?.cancel();
     _pipeSpawnTimer?.cancel();
+    _wingAnimationController.stop();
     gameState.value = GameState.gameOver;
     if (score.value > highScore.value) {
       highScore.value = score.value;
@@ -160,12 +174,14 @@ class FlappyBirdController extends GetxController {
     score.value = 0;
     _gameTimer?.cancel();
     _pipeSpawnTimer?.cancel();
+    _wingAnimationController.stop();
   }
 
   @override
   void onClose() {
     _gameTimer?.cancel();
     _pipeSpawnTimer?.cancel();
+    _wingAnimationController.dispose();
     super.onClose();
   }
 }

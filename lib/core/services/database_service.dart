@@ -10,6 +10,8 @@ class DatabaseService extends GetxService {
   late final Database _db;
   late final StorageService _storageService;
 
+  Database get db => _db; // Public getter for the database instance
+
   Future<DatabaseService> init() async {
     _storageService = Get.find<StorageService>();
     final dbPath = await getDatabasesPath();

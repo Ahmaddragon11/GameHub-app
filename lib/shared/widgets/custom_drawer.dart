@@ -162,11 +162,17 @@ class CustomDrawer extends StatelessWidget {
       {required IconData icon,
       required String title,
       required VoidCallback onTap}) {
-    return ListTile(
-      leading: Icon(icon, color: Get.theme.colorScheme.secondary),
-      title: Text(title, style: const TextStyle(fontSize: 16)),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: ListTile(
+          leading: Icon(icon, color: Get.theme.colorScheme.secondary),
+          title: Text(title, style: const TextStyle(fontSize: 16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
     );
   }
 }

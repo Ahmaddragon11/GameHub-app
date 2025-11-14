@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
 enum GameMode {
-  singlePlayer,
+  vsAI,
   twoPlayer,
 }
 
 extension GameModeExtension on GameMode {
   String get displayName {
     switch (this) {
-      case GameMode.singlePlayer:
-        return 'لاعب واحد';
+      case GameMode.vsAI:
+        return 'لاعب ضد الكمبيوتر';
       case GameMode.twoPlayer:
-        return 'لاعبان';
+        return 'لاعب ضد لاعب';
     }
   }
 
   String get description {
     switch (this) {
-      case GameMode.singlePlayer:
+      case GameMode.vsAI:
         return 'تحدى الذكاء الاصطناعي';
       case GameMode.twoPlayer:
         return 'العب ضد صديقك';
@@ -26,8 +26,8 @@ extension GameModeExtension on GameMode {
 
   String get databaseKey {
     switch (this) {
-      case GameMode.singlePlayer:
-        return 'single_player';
+      case GameMode.vsAI:
+        return 'single_player'; // Still use single_player for database key
       case GameMode.twoPlayer:
         return 'two_player';
     }
@@ -35,7 +35,7 @@ extension GameModeExtension on GameMode {
 
   IconData get icon {
     switch (this) {
-      case GameMode.singlePlayer:
+      case GameMode.vsAI:
         return Icons.computer;
       case GameMode.twoPlayer:
         return Icons.people;

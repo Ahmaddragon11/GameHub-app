@@ -39,8 +39,7 @@ class SnakeController extends GetxController {
   }
 
   void _loadHighScore() async {
-    final db = await _databaseService.database;
-    final result = await db.query(
+    final result = await _databaseService.db.query(
       'game_scores',
       where: 'game_name = ? AND user_id = ?',
       whereArgs: ['Snake', _userId ?? 'guest'],
@@ -154,8 +153,7 @@ class SnakeController extends GetxController {
   }
 
   void _saveScore() async {
-    final db = await _databaseService.database;
-    await db.insert(
+    await _databaseService.db.insert(
       'game_scores',
       {
         'user_id': _userId ?? 'guest',

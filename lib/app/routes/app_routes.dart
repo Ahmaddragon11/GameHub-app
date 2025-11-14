@@ -1,7 +1,7 @@
 abstract class AppRoutes {
   static const initial = '/';
-  static const home = '/home';
   static const splash = '/splash';
+  static const home = '/home';
   static const snake = '/game/snake';
   static const flappyBird = '/game/flappy-bird';
   static const ticTacToe = '/game/tic-tac-toe';
@@ -12,4 +12,5 @@ abstract class AppRoutes {
   static const auth = '/auth';
   static const login = '/auth/login';
   static const register = '/auth/register';
+  static const resetPassword = '/auth/reset-password';
 }

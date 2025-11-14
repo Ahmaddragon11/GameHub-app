@@ -3,13 +3,26 @@ import 'package:get/get.dart';
 import 'app_routes.dart';
 import '../../features/home/views/home_view.dart';
 import '../../features/home/bindings/home_binding.dart';
+import '../../features/splash/views/splash_view.dart';
+import '../../features/splash/bindings/splash_binding.dart';
 import '../../features/auth/bindings/auth_binding.dart';
 import '../../features/auth/views/login_view.dart';
 import '../../features/auth/views/register_view.dart';
 import '../../features/games/snake/bindings/snake_binding.dart';
 import '../../features/games/snake/views/snake_view.dart';
+import '../../features/games/flappy_bird/bindings/flappy_bird_binding.dart';
+import '../../features/games/flappy_bird/views/flappy_bird_view.dart';
+import '../../features/games/tic_tac_toe/bindings/tic_tac_toe_binding.dart';
+import '../../features/games/tic_tac_toe/views/tic_tac_toe_view.dart';
 import '../../features/profile/bindings/profile_binding.dart';
 import '../../features/profile/views/profile_view.dart';
+import '../../features/auth/views/reset_password_view.dart';
+import '../../features/settings/bindings/settings_binding.dart';
+import '../../features/settings/views/settings_view.dart';
+import '../../features/leaderboard/bindings/leaderboard_binding.dart';
+import '../../features/leaderboard/views/leaderboard_view.dart';
+import '../../features/chat/bindings/chat_binding.dart';
+import '../../features/chat/views/chat_view.dart';
 
 abstract class AppPages {
   static final routes = [
@@ -17,37 +30,93 @@ abstract class AppPages {
       name: AppRoutes.home,
       page: () => const HomeView(),
       binding: HomeBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.initial,
-      page: () => const HomeView(), // Or a splash screen
-      binding: HomeBinding(),
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.splash,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.snake,
       page: () => const SnakeView(),
       binding: SnakeBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.flappyBird, page: () => const PlaceholderGameScreen(gameName: 'Flappy Bird')),
-    GetPage(name: AppRoutes.ticTacToe, page: () => const PlaceholderGameScreen(gameName: 'Tic Tac Toe')),
+    GetPage(
+      name: AppRoutes.flappyBird,
+      page: () => const FlappyBirdView(),
+      binding: FlappyBirdBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.ticTacToe,
+      page: () => const TicTacToeView(),
+      binding: TicTacToeBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfileView(),
       binding: ProfileBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.login,
       page: () => const LoginView(),
       binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
       name: AppRoutes.register,
       page: () => const RegisterView(),
       binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
     ),
-    GetPage(name: AppRoutes.settings, page: () => const PlaceholderScreen(title: 'الإعدادات')),
-    GetPage(name: AppRoutes.leaderboard, page: () => const PlaceholderScreen(title: 'قائمة الصدارة')),
-    GetPage(name: AppRoutes.chat, page: () => const PlaceholderScreen(title: 'الدردشة')),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => const ResetPasswordView(),
+      binding: AuthBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.settings,
+      page: () => const SettingsView(),
+      binding: SettingsBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.leaderboard,
+      page: () => const LeaderboardView(),
+      binding: LeaderboardBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: AppRoutes.chat,
+      page: () => const ChatView(),
+      binding: ChatBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
   ];
 }
 

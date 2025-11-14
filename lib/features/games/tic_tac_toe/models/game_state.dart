@@ -1,6 +1,8 @@
 enum GameState {
+  idle,
   modeSelection,
   playing,
+  paused,
   gameOver,
 }
 
@@ -16,6 +18,10 @@ extension GameStateExtension on GameState {
         return 'اللعبة جارية';
       case GameState.gameOver:
         return 'انتهت اللعبة';
+      case GameState.idle:
+        return 'جاهز للعب';
+      case GameState.paused:
+        return 'متوقف مؤقتًا';
     }
   }
 }

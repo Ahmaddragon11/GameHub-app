@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:myapp/features/auth/controllers/auth_controller.dart';
+import 'package:myapp/app/routes/app_routes.dart';
 
 class LoginView extends GetView<AuthController> {
   const LoginView({super.key});
@@ -80,10 +81,10 @@ class LoginView extends GetView<AuthController> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton(
-                        onPressed: () {
-                          // TODO: Implement password reset
-                        },
-                        child: const Text('نسيت كلمة المرور؟'),
+                      onPressed: () {
+                        Get.toNamed(AppRoutes.resetPassword);
+                      },
+                      child: const Text('نسيت كلمة المرور؟'),
                       ),
                     ),
                     const SizedBox(height: 20),

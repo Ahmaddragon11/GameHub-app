@@ -74,9 +74,17 @@ class AuthService extends GetxService {
     // _onAuthStateChanged will handle creating a new guest user
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    }
+  }
+
   Future<void> linkGuestAccount(String email, String password, String username) async {
     try {
-      final oldUserId = _storageService.getUserId();
+      final String? oldUserId = await _storageService.getUserId();
 
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -84,7 +92,9 @@ class AuthService extends GetxService {
       );
       final newUserId = userCredential.user!.uid;
 
-      await _migrateGuestData(oldUserId, newUserId);
+      if (oldUserId != null) {
+        await _migrateGuestData(oldUserId, newUserId);
+      }
 
       await _dbService.updateUser(newUserId, {
         'username': username,

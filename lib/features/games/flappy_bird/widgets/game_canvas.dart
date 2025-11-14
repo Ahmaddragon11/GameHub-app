@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math'; // Import for sin and pi
 
 import '../../../../core/theme/app_theme.dart';
 import '../models/bird.dart';
@@ -7,8 +8,9 @@ import '../models/pipe.dart';
 class GameCanvas extends StatelessWidget {
   final Bird bird;
   final List<Pipe> pipes;
+  final double wingAnimation; // Value from 0.0 to 1.0 for wing flapping
 
-  const GameCanvas({super.key, required this.bird, required this.pipes});
+  const GameCanvas({super.key, required this.bird, required this.pipes, required this.wingAnimation});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,7 @@ class GameCanvas extends StatelessWidget {
       aspectRatio: 9 / 16,
       child: ClipRect(
         child: CustomPaint(
-          painter: GameCanvasPainter(bird: bird, pipes: pipes),
+          painter: GameCanvasPainter(bird: bird, pipes: pipes, wingAnimation: wingAnimation),
           child: Container(),
         ),
       ),
@@ -27,8 +29,9 @@ class GameCanvas extends StatelessWidget {
 class GameCanvasPainter extends CustomPainter {
   final Bird bird;
   final List<Pipe> pipes;
+  final double wingAnimation;
 
-  GameCanvasPainter({required this.bird, required this.pipes});
+  GameCanvasPainter({required this.bird, required this.pipes, required this.wingAnimation});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -64,37 +67,78 @@ class GameCanvasPainter extends CustomPainter {
     }
 
     // Bird
-    final birdPaint = Paint()..color = AppTheme.gameColors['flappyBird'] ?? Colors.orange;
+    final birdColor = AppTheme.gameColors['flappyBird'] ?? Colors.orange;
+    final birdPaint = Paint()..color = birdColor;
+    final birdOutlinePaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
     final birdEyePaint = Paint()..color = Colors.white;
     final birdPupilPaint = Paint()..color = Colors.black;
     final birdBeakPaint = Paint()..color = Colors.yellow.shade700;
+
     final birdCenterX = size.width * 0.5;
     final birdCenterY = bird.y * size.height;
-    final birdRadius = (Bird.size * size.width) / 2;
+    final birdWidth = Bird.size * size.width * 1.2; // Slightly wider
+    final birdHeight = Bird.size * size.height * 0.8; // Slightly shorter
+    final birdBodyRect = Rect.fromCenter(center: Offset(birdCenterX, birdCenterY), width: birdWidth, height: birdHeight);
 
     canvas.save();
     canvas.translate(birdCenterX, birdCenterY);
     canvas.rotate(bird.rotation);
     canvas.translate(-birdCenterX, -birdCenterY);
 
-    canvas.drawCircle(Offset(birdCenterX, birdCenterY), birdRadius, birdPaint);
-    
+    // Bird body
+    canvas.drawOval(birdBodyRect, birdPaint);
+    canvas.drawOval(birdBodyRect, birdOutlinePaint);
+
     // Eye
-    final eyeRadius = birdRadius * 0.2;
-    final eyeOffsetX = birdRadius * 0.3;
-    final eyeOffsetY = -birdRadius * 0.4;
+    final eyeRadius = birdWidth * 0.08;
+    final eyeOffsetX = birdWidth * 0.2;
+    final eyeOffsetY = -birdHeight * 0.15;
     canvas.drawCircle(Offset(birdCenterX + eyeOffsetX, birdCenterY + eyeOffsetY), eyeRadius, birdEyePaint);
     canvas.drawCircle(Offset(birdCenterX + eyeOffsetX + 1, birdCenterY + eyeOffsetY), eyeRadius * 0.5, birdPupilPaint);
-    
+
     // Beak
     final beakPath = Path()
-      ..moveTo(birdCenterX + birdRadius, birdCenterY)
-      ..lineTo(birdCenterX + birdRadius * 1.5, birdCenterY - birdRadius * 0.3)
-      ..lineTo(birdCenterX + birdRadius * 1.5, birdCenterY + birdRadius * 0.3)
+      ..moveTo(birdCenterX + birdWidth / 2, birdCenterY)
+      ..lineTo(birdCenterX + birdWidth / 2 + birdWidth * 0.2, birdCenterY - birdHeight * 0.1)
+      ..lineTo(birdCenterX + birdWidth / 2 + birdWidth * 0.2, birdCenterY + birdHeight * 0.1)
       ..close();
     canvas.drawPath(beakPath, birdBeakPaint);
+    canvas.drawPath(beakPath, birdOutlinePaint);
 
-    canvas.restore();
+    // Wings
+    final wingPaint = Paint()..color = birdColor.withOpacity(0.8);
+    final wingOutlinePaint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    // Calculate wing rotation based on animation value
+    final wingRotation = sin(wingAnimation * pi * 2) * 0.3; // Oscillates between -0.3 and 0.3 radians
+
+    canvas.save();
+    canvas.translate(birdCenterX - birdWidth * 0.2, birdCenterY - birdHeight * 0.1); // Pivot point for wing
+    canvas.rotate(wingRotation);
+    canvas.translate(-(birdCenterX - birdWidth * 0.2), -(birdCenterY - birdHeight * 0.1));
+
+    final wingPath = Path()
+      ..moveTo(birdCenterX - birdWidth * 0.1, birdCenterY - birdHeight * 0.2)
+      ..quadraticBezierTo(
+        birdCenterX - birdWidth * 0.3, birdCenterY - birdHeight * 0.5,
+        birdCenterX - birdWidth * 0.4, birdCenterY - birdHeight * 0.2,
+      )
+      ..quadraticBezierTo(
+        birdCenterX - birdWidth * 0.3, birdCenterY + birdHeight * 0.1,
+        birdCenterX - birdWidth * 0.1, birdCenterY - birdHeight * 0.2,
+      )
+      ..close();
+    canvas.drawPath(wingPath, wingPaint);
+    canvas.drawPath(wingPath, wingOutlinePaint);
+    canvas.restore(); // Restore wing rotation
+
+    canvas.restore(); // Restore bird rotation
     
     // Ground
     final groundPaint = Paint()..color = Colors.green.shade600;

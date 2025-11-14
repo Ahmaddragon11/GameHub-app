@@ -85,10 +85,18 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+      } on String catch (e) {
+        Get.snackbar(
+          'خطأ',
+          e,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       } catch (e) {
         Get.snackbar(
           'خطأ',
-          e.toString(),
+          'حدث خطأ غير متوقع: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -116,10 +124,55 @@ class AuthController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+      } on String catch (e) {
+        Get.snackbar(
+          'خطأ',
+          e,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       } catch (e) {
         Get.snackbar(
           'خطأ',
-          e.toString(),
+          'حدث خطأ غير متوقع: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } finally {
+        isLoading.value = false;
+      }
+    }
+  }
+
+  Future<void> sendPasswordResetEmail() async {
+    if (formKey.currentState!.validate()) {
+      isLoading.value = true;
+      try {
+        await _authService.sendPasswordResetEmail(
+          emailController.text.trim(),
+        );
+        Get.back(); // Go back to login screen
+        Get.snackbar(
+          'نجاح',
+          'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } on String catch (e) {
+        Get.snackbar(
+          'خطأ',
+          e,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      } catch (e) {
+        Get.snackbar(
+          'خطأ',
+          'حدث خطأ غير متوقع: ${e.toString()}',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
