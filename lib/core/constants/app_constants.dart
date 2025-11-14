@@ -1,0 +1,18 @@
+abstract class AppConstants {
+  // App Information
+  static const String appName = 'Classic Games Arcade';
+  static const String appVersion = '1.0.0';
+
+  // Database
+  static const String databaseName = 'classic_games.db';
+  static const int databaseVersion = 1;
+
+  // Firebase Firestore Collections
+  static const String firestoreUsersCollection = 'users';
+  static const String firestoreScoresCollection = 'scores';
+  static const String firestoreChatCollection = 'chat';
+
+  // Game Settings
+  static const double defaultGameSpeed = 1.0;
+  static const int maxLeaderboardEntries = 50;
+}
