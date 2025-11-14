@@ -1,81 +1,187 @@
-import 'package:sqflite/sqflite.dart';
+import 'package:get/get.dart';
 import 'package:path/path.dart';
-import '../constants/app_constants.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
-class DatabaseService {
-  static final DatabaseService _instance = DatabaseService._internal();
-  factory DatabaseService() => _instance;
+import '../../core/constants/app_constants.dart';
+import 'storage_service.dart';
 
-  DatabaseService._internal();
+class DatabaseService extends GetxService {
+  late final Database _db;
+  late final StorageService _storageService;
 
-  Database? _database;
-
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDb();
-    return _database!;
-  }
-
-  Future<Database> _initDb() async {
+  Future<DatabaseService> init() async {
+    _storageService = Get.find<StorageService>();
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, AppConstants.databaseName);
-    return await openDatabase(
+
+    _db = await openDatabase(
       path,
       version: AppConstants.databaseVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+
+    return this;
   }
 
   Future<void> _onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE users (
         id TEXT PRIMARY KEY,
-        name TEXT,
-        email TEXT,
-        is_guest BOOLEAN
+        username TEXT UNIQUE,
+        created_at TEXT NOT NULL
       )
     ''');
+
     await db.execute('''
       CREATE TABLE game_scores (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
-        game_name TEXT,
-        score INTEGER,
-        created_at TEXT,
+        game_name TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users (id)
       )
     ''');
+    
     await db.execute('''
-      CREATE TABLE settings (
-        key TEXT PRIMARY KEY,
-        value TEXT
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE achievements (
+      CREATE TABLE game_statistics (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT,
-        achievement_name TEXT,
-        unlocked_at TEXT,
-        FOREIGN KEY (user_id) REFERENCES users (id)
+        game_name TEXT NOT NULL,
+        mode TEXT NOT NULL, -- 'single_player' or 'two_player'
+        wins INTEGER NOT NULL DEFAULT 0,
+        losses INTEGER NOT NULL DEFAULT 0,
+        draws INTEGER NOT NULL DEFAULT 0,
+        last_updated TEXT NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users (id),
+        UNIQUE(user_id, game_name, mode)
       )
     ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    // Handle database schema migrations here
     if (oldVersion < 2) {
-      // Example migration: await db.execute("ALTER TABLE users ADD COLUMN new_field TEXT;");
+       await db.execute('''
+        CREATE TABLE game_statistics (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id TEXT,
+          game_name TEXT NOT NULL,
+          mode TEXT NOT NULL, -- 'single_player' or 'two_player'
+          wins INTEGER NOT NULL DEFAULT 0,
+          losses INTEGER NOT NULL DEFAULT 0,
+          draws INTEGER NOT NULL DEFAULT 0,
+          last_updated TEXT NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users (id),
+          UNIQUE(user_id, game_name, mode)
+        )
+      ''');
     }
   }
-
-  Future<void> init() async {
-    _database = await database;
+  
+  Future<String> getOrCreateUser() async {
+    String? userId = await _storageService.getUserId();
+    if (userId == null) {
+      userId = const Uuid().v4();
+      await _storageService.setUserId(userId);
+      await _db.insert('users', {
+        'id': userId,
+        'username': 'guest_$userId',
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    }
+    return userId;
   }
 
-  Future<void> close() async {
-    final db = await database;
-    db.close();
+  Future<void> addScore(String gameName, int score) async {
+    final userId = await getOrCreateUser();
+    await _db.insert('game_scores', {
+      'user_id': userId,
+      'game_name': gameName,
+      'score': score,
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  Future<int> getHighScore(String gameName) async {
+    final userId = await getOrCreateUser();
+    final result = await _db.query(
+      'game_scores',
+      columns: ['MAX(score) as highScore'],
+      where: 'user_id = ? AND game_name = ?',
+      whereArgs: [userId, gameName],
+    );
+    return (result.first['highScore'] as int?) ?? 0;
+  }
+
+  Future<Map<String, int>> getGameStatistics(String gameName, String mode) async {
+    final userId = await getOrCreateUser();
+    final result = await _db.query(
+      'game_statistics',
+      where: 'user_id = ? AND game_name = ? AND mode = ?',
+      whereArgs: [userId, gameName, mode],
+    );
+    if (result.isNotEmpty) {
+      final stats = result.first;
+      return {
+        'wins': stats['wins'] as int,
+        'losses': stats['losses'] as int,
+        'draws': stats['draws'] as int,
+      };
+    }
+    return {'wins': 0, 'losses': 0, 'draws': 0};
+  }
+
+  Future<void> updateGameStatistics(String gameName, String mode, {int? wins, int? losses, int? draws}) async {
+    final userId = await getOrCreateUser();
+    await _db.transaction((txn) async {
+      final existing = await txn.query(
+        'game_statistics',
+        where: 'user_id = ? AND game_name = ? AND mode = ?',
+        whereArgs: [userId, gameName, mode],
+      );
+
+      if (existing.isNotEmpty) {
+        await txn.update(
+          'game_statistics',
+          {
+            'wins': wins ?? existing.first['wins'],
+            'losses': losses ?? existing.first['losses'],
+            'draws': draws ?? existing.first['draws'],
+            'last_updated': DateTime.now().toIso8601String(),
+          },
+          where: 'id = ?',
+          whereArgs: [existing.first['id']],
+        );
+      } else {
+        await txn.insert('game_statistics', {
+          'user_id': userId,
+          'game_name': gameName,
+          'mode': mode,
+          'wins': wins ?? 0,
+          'losses': losses ?? 0,
+          'draws': draws ?? 0,
+          'last_updated': DateTime.now().toIso8601String(),
+        });
+      }
+    });
+  }
+
+  Future<void> incrementStatistic(String gameName, String mode, String statType) async {
+    final userId = await getOrCreateUser();
+    await _db.rawInsert('''
+      INSERT INTO game_statistics (user_id, game_name, mode, wins, losses, draws, last_updated)
+      VALUES (?, ?, ?, 
+        CASE WHEN ? = 'wins' THEN 1 ELSE 0 END,
+        CASE WHEN ? = 'losses' THEN 1 ELSE 0 END, 
+        CASE WHEN ? = 'draws' THEN 1 ELSE 0 END, 
+        ?)
+      ON CONFLICT(user_id, game_name, mode) DO UPDATE SET
+        wins = wins + (CASE WHEN ? = 'wins' THEN 1 ELSE 0 END),
+        losses = losses + (CASE WHEN ? = 'losses' THEN 1 ELSE 0 END),
+        draws = draws + (CASE WHEN ? = 'draws' THEN 1 ELSE 0 END),
+        last_updated = ?
+    ''', [userId, gameName, mode, statType, statType, statType, DateTime.now().toIso8601String(), statType, statType, statType, DateTime.now().toIso8601String()]);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // A class to hold all keys for SharedPreferences to avoid typos
@@ -10,15 +11,12 @@ class StorageKeys {
   static const String language = 'language';
 }
 
-class StorageService {
-  static final StorageService _instance = StorageService._internal();
-  factory StorageService() => _instance;
-  StorageService._internal();
-
+class StorageService extends GetxService {
   SharedPreferences? _prefs;
 
-  Future<void> init() async {
+  Future<StorageService> init() async {
     _prefs = await SharedPreferences.getInstance();
+    return this;
   }
 
   SharedPreferences get _preferences {
@@ -41,8 +39,6 @@ class StorageService {
     } else if (value is List<String>) {
       return await _preferences.setStringList(key, value);
     } else {
-      // For complex objects, you might want to serialize to JSON first
-      // e.g., return await _preferences.setString(key, jsonEncode(value));
       throw ArgumentError("Unsupported value type");
     }
   }
@@ -53,7 +49,6 @@ class StorageService {
     if (value is T) {
       return value;
     } 
-    // If you store JSON strings for complex objects, you'd deserialize here.
     return null;
   }
 
@@ -65,5 +60,19 @@ class StorageService {
   /// Clears all data from SharedPreferences.
   Future<bool> clear() async {
     return await _preferences.clear();
+  }
+  
+  // --- Helper Methods ---
+
+  Future<String?> getUserId() async {
+    return read<String>(StorageKeys.userId);
+  }
+
+  Future<void> setUserId(String userId) async {
+    await write(StorageKeys.userId, userId);
+  }
+
+  Future<bool> isGuestUser() async {
+    return read<bool>(StorageKeys.isGuest) ?? true;
   }
 }
