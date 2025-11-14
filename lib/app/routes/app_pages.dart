@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'app_routes.dart';
 import '../../features/home/views/home_view.dart';
 import '../../features/home/bindings/home_binding.dart';
+import '../../features/games/snake/views/snake_view.dart';
+import '../../features/games/snake/bindings/snake_binding.dart';
 
 abstract class AppPages {
   static final routes = [
@@ -16,7 +18,11 @@ abstract class AppPages {
       page: () => const HomeView(), // Or a splash screen
       binding: HomeBinding(),
     ),
-    GetPage(name: AppRoutes.snake, page: () => const PlaceholderGameScreen(gameName: 'Snake')),
+    GetPage(
+      name: AppRoutes.snake,
+      page: () => const SnakeView(),
+      binding: SnakeBinding(),
+    ),
     GetPage(name: AppRoutes.flappyBird, page: () => const PlaceholderGameScreen(gameName: 'Flappy Bird')),
     GetPage(name: AppRoutes.ticTacToe, page: () => const PlaceholderGameScreen(gameName: 'Tic Tac Toe')),
     GetPage(name: AppRoutes.profile, page: () => const PlaceholderScreen(title: 'الملف الشخصي')),
