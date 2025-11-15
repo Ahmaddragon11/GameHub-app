@@ -23,7 +23,7 @@ class TicTacToeView extends GetView<TicTacToeController> {
       ),
       body: Obx(
         () {
-          if (controller.gameState.value == GameState.pickingMode) {
+          if (controller.gameState.value == GameState.modeSelection) {
             return _buildModeSelection(context);
           } else {
             return _buildGameBoard(context);
@@ -138,7 +138,7 @@ class TicTacToeView extends GetView<TicTacToeController> {
       case GameState.paused:
         return 'متوقف مؤقتًا';
       case GameState.idle:
-      case GameState.pickingMode:
+      case GameState.modeSelection:
         return '';
     }
   }

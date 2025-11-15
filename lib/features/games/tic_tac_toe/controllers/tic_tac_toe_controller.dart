@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:get/get.dart';
 import '../../../../core/services/database_service.dart';
 import '../models/game_mode.dart';
@@ -15,7 +14,7 @@ class TicTacToeController extends GetxController {
     (_) => RxList.generate(3, (_) => Rx<Player?>(null)),
   );
   final Rx<Player?> currentPlayer = Rx<Player?>(Player.X);
-  final Rx<GameState> gameState = Rx<GameState>(GameState.pickingMode);
+  final Rx<GameState> gameState = Rx<GameState>(GameState.modeSelection);
   final Rx<Player?> winner = Rx<Player?>(null);
   final Rx<GameMode> gameMode = Rx<GameMode>(GameMode.twoPlayer);
 
@@ -123,6 +122,6 @@ class TicTacToeController extends GetxController {
     }
     currentPlayer.value = Player.X;
     winner.value = null;
-    gameState.value = GameState.pickingMode; // Go back to mode selection
+    gameState.value = GameState.modeSelection; // Go back to mode selection
   }
 }

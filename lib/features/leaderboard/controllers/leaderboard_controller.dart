@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import '../../../../core/services/database_service.dart';
-import '../../../../core/models/game_model.dart'; // Assuming GameModel is used for leaderboard entries
+// Assuming GameModel is used for leaderboard entries
 
 class LeaderboardController extends GetxController {
   final DatabaseService _databaseService = Get.find<DatabaseService>();
